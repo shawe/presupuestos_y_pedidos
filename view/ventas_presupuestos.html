@@ -252,6 +252,19 @@
                   {/loop}
                </select>
             </div>
+             <div class="form-group">
+               <select class="form-control" name="status" onchange="this.form.submit()">
+                  <option value="">Cualquier estado</option>
+                  <option value="">-----</option>
+                  {loop="$fsc->estados"}
+                     {if="$value->status==$fsc->status"}
+                     <option value="{$value->status}" selected="">{$value->nombre}</option>
+                     {else}
+                     <option value="{$value->status}">{$value->nombre}</option>
+                     {/if}
+                  {/loop}
+               </select>
+            </div>
          </div>
          <div class="col-sm-2">
             <div class="form-group">

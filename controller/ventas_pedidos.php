@@ -33,6 +33,8 @@ class ventas_pedidos extends fbase_controller
     public $codpago;
     public $codserie;
     public $desde;
+    public $estados;
+    public $fecha_entrega;
     public $forma_pago;
     public $grupo;
     public $hasta;
@@ -43,6 +45,7 @@ class ventas_pedidos extends fbase_controller
     public $order;
     public $resultados;
     public $serie;
+    public $status;
     public $total_resultados;
     public $total_resultados_txt;
 
@@ -61,6 +64,8 @@ class ventas_pedidos extends fbase_controller
         $this->forma_pago = new forma_pago();
         $this->grupo = new grupo_clientes();
         $this->serie = new serie();
+        $this->estados = new estado_documento();
+        $this->estados = $this->estados->get_by_document('ventas_pedido');
 
         $this->offset = 0;
         if (isset($_REQUEST['offset'])) {
@@ -103,10 +108,12 @@ class ventas_pedidos extends fbase_controller
             $this->share_extension();
             $this->cliente = FALSE;
             $this->codagente = '';
+            $this->status = '';
             $this->codalmacen = '';
             $this->codgrupo = '';
             $this->codpago = '';
             $this->codserie = '';
+            $this->fecha_entrega = '';
             $this->desde = '';
             $this->hasta = '';
             $this->num_resultados = '';
@@ -133,6 +140,10 @@ class ventas_pedidos extends fbase_controller
                 if (isset($_REQUEST['codagente'])) {
                     $this->codagente = $_REQUEST['codagente'];
                 }
+                
+                if (isset($_REQUEST['status'])) {
+                    $this->status = $_REQUEST['status'];
+                }
 
                 if (isset($_REQUEST['codalmacen'])) {
                     $this->codalmacen = $_REQUEST['codalmacen'];
@@ -153,6 +164,10 @@ class ventas_pedidos extends fbase_controller
                 if (isset($_REQUEST['desde'])) {
                     $this->desde = $_REQUEST['desde'];
                     $this->hasta = $_REQUEST['hasta'];
+                }
+                
+                if (isset($_REQUEST['fechaentrega'])) {
+                    $this->fecha_entrega= $_REQUEST['fechaentrega'];
                 }
             }
 
@@ -224,11 +239,13 @@ class ventas_pedidos extends fbase_controller
             $url = $this->url() . "&mostrar=" . $this->mostrar
                 . "&query=" . $this->query
                 . "&codagente=" . $this->codagente
+                . "&status=" . $this->status
                 . "&codalmacen=" . $this->codalmacen
                 . "&codcliente=" . $codcliente
                 . "&codgrupo=" . $this->codgrupo
                 . "&codpago=" . $this->codpago
                 . "&codserie=" . $this->codserie
+                . "&fechaentrega=" . $this->fecha_entrega
                 . "&desde=" . $this->desde
                 . "&hasta=" . $this->hasta;
 
@@ -363,6 +380,11 @@ class ventas_pedidos extends fbase_controller
             $sql .= $where . "codagente = " . $this->agente->var2str($this->codagente);
             $where = ' AND ';
         }
+        
+        if ($this->status != '') {
+            $sql .= $where . "status = " . $this->agente->var2str($this->status);
+            $where = ' AND ';
+        }
 
         if ($this->codalmacen != '') {
             $sql .= $where . "codalmacen = " . $this->agente->var2str($this->codalmacen);
@@ -381,6 +403,11 @@ class ventas_pedidos extends fbase_controller
 
         if ($this->codserie != '') {
             $sql .= $where . "codserie = " . $this->agente->var2str($this->codserie);
+            $where = ' AND ';
+        }
+
+        if ($this->fecha_entrega) {
+            $sql .= $where . "fechaentrega >= " . $this->agente->var2str($this->fecha_entrega);
             $where = ' AND ';
         }
 

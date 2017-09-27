@@ -1,0 +1,125 @@
+{include="header"}
+
+<script type="text/javascript">
+   function delete_estado(id, nombre) {
+      bootbox.confirm({
+         message: '¿Realmente desea eliminar el estado #' + id + ' <b>' + nombre + '</b>?'
+                 .'<br/>',
+         title: '<b>Atención</b>',
+         callback: function(result) {
+            if (result) {
+               window.location.href = '{$fsc->url()}&delete=' + encodeURIComponent(id);
+            }
+         }
+      });
+   }
+</script>
+
+<div class="container-fluid">
+    <h1>
+        <i class="fa fa-tags" aria-hidden="true"></i> <span>Estados de documentos</span>
+        <span class="btn-group">
+            <div class="btn-group hidden-xs">
+                <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
+                    <span class="glyphicon glyphicon-refresh"></span>
+                </a>
+            </div>
+        </span>
+        <span class="btn-group">
+            <div class="btn-group">
+                {loop="$fsc->extensions"}
+                {if="$value->type=='button'"}
+                <a href="index.php?page={$value->from}{$value->params}" class="btn btn-xs btn-default">{$value->text}</a>
+                {/if}
+                {/loop}
+            </div>
+
+        </span>
+    </h1>
+</div>
+
+<div class="container-fluid">
+    {loop="$fsc->documentos"}
+    <h3>
+    <i class="fa fa-tag" aria-hidden="true"></i> <span>Estados para 
+        {if="$value=='ventas_presupuesto'"}{#FS_PRESUPUESTO#} de venta
+        {elseif="$value=='ventas_pedido'"}{#FS_PEDIDO#} de venta
+        {elseif="$value=='ventas_albaran'"}{#FS_ALBARAN#} de venta
+        {elseif="$value=='ventas_factura'"}{#FS_FACTURA#} de venta
+        {elseif="$value=='compras_pedido'"}{#FS_PEDIDO#} de compra
+        {elseif="$value=='compras_albaran'"}{#FS_ALBARAN#} de compra
+        {elseif="$value=='compras_factura'"}{#FS_FACTURA#} de compra{/if}
+    </span>
+    </h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Estado</th>
+                <th>Nombre</th>
+            </tr>
+        </thead>
+        <tbody>
+            {loop="$fsc->estado_doc->get_by_document($value)"}
+            <tr>
+                <form action="{$fsc->url()}" method="post" class="form">
+                    <td>
+                        <input type="hidden" name="documento" value="{$value2->documento}" class="form-control" readonly=""/>
+                        <input type="hidden" name="id" value="{$value2->id}" class="form-control" readonly=""/>
+                        #{$value2->id}
+                    </td>
+                    <td>
+                        <input type="hidden" name="status" value="{$value2->status}" class="form-control" readonly=""/>
+                        {$value2->status}
+                    </td>
+                    <td>
+                        <input type="text" name="nombre" value="{$value2->nombre}" class="form-control" maxlength="20" autocomplete="off" {if="$value->bloqueado==TRUE"}readonly=""{/if}/>
+                    </td>
+                    <td class="text-right">
+                        <div class="btn-group">
+                           {if="$value->bloqueado==FALSE"}
+                                {if="$fsc->allow_delete"}
+                                <button class="btn btn-sm btn-danger" type="button" title="Eliminar" onclick="delete_estado('{$value->id}', '{$value2->nombre}')">
+                                   <span class="glyphicon glyphicon-trash"></span>
+                                </button>
+                                {/if}
+                           {/if}
+                           <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
+                              <span class="glyphicon glyphicon-floppy-disk"></span>
+                           </button>
+                        </div>
+                    </td>
+                </form>
+            </tr>
+            {$status=$value2->status+1}
+            {else}
+            <tr>
+                <td colspan="4">No hay estados definidos para este documento.</td>
+            </tr>
+            {/loop}
+            <tr>
+                <form action="{$fsc->url()}" method="post" class="form">
+                    <td>
+                        <input type="hidden" name="documento" value="{$value2->documento}" class="form-control" readonly=""/>
+                    </td>
+                    <td>
+                        <input type="hidden" name="status" value="{$status}" class="form-control" readonly=""/>
+                        {$status}
+                    </td>
+                    <td>
+                        <input type="text" name="nombre" value="" class="form-control" maxlength="20" autocomplete="off" placeholder="Nombre nuevo estado"/>
+                    </td>
+                    <td class="text-right">
+                        <button class="btn btn-sm btn-primary" type="submit" title="Nuevo">
+                           <span class="glyphicon glyphicon-plus-sign"></span>
+                           <span class="hidden-sm">&nbsp;Nuevo</span>
+                        </button>
+                    </td>
+                </form>
+            </tr>
+        </tbody>
+    </table>
+    {/loop}
+</div>
+
+{include="footer"}

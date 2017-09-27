@@ -30,6 +30,7 @@ class ventas_presupuesto extends fbase_controller
     public $cliente_s;
     public $divisa;
     public $ejercicio;
+    public $estados;
     public $fabricante;
     public $familia;
     public $forma_pago;
@@ -71,6 +72,8 @@ class ventas_presupuesto extends fbase_controller
         $this->serie = new serie();
         $this->setup_validez = 30;
         $this->configurar_validez();
+        $this->estados = new estado_documento();
+        $this->estados = $this->estados->get_by_document('ventas_presupuesto');
 
         /**
          * Comprobamos si el usuario tiene acceso a nueva_venta,
@@ -236,6 +239,9 @@ class ventas_presupuesto extends fbase_controller
                 $this->new_error_msg('Ningún ejercicio encontrado.');
             }
 
+            if (isset($_REQUEST['status'])) {
+                $this->presupuesto->status = intval($_REQUEST['status']);
+            }
             /// ¿cambiamos el cliente?
             if ($_POST['cliente'] != $this->presupuesto->codcliente) {
                 $cliente = $this->cliente->get($_POST['cliente']);
@@ -369,6 +375,7 @@ class ventas_presupuesto extends fbase_controller
                             /// modificamos la línea
                             if ($value->idlinea == intval($_POST['idlinea_' . $num])) {
                                 $encontrada = TRUE;
+                                $lineas[$k]->orden = $num;
                                 $lineas[$k]->cantidad = floatval($_POST['cantidad_' . $num]);
                                 $lineas[$k]->pvpunitario = floatval($_POST['pvp_' . $num]);
                                 $lineas[$k]->dtopor = floatval(fs_filter_input_post('dto_' . $num, 0));
@@ -424,6 +431,7 @@ class ventas_presupuesto extends fbase_controller
                                 $linea->recargo = floatval(fs_filter_input_post('recargo_' . $num, 0));
                             }
 
+                            $linea->orden = $num;
                             $linea->irpf = floatval(fs_filter_input_post('irpf_' . $num, 0));
                             $linea->cantidad = floatval($_POST['cantidad_' . $num]);
                             $linea->pvpunitario = floatval($_POST['pvp_' . $num]);

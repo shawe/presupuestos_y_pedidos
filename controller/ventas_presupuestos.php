@@ -32,6 +32,7 @@ class ventas_presupuestos extends fbase_controller
     public $codpago;
     public $codserie;
     public $desde;
+    public $estados;
     public $forma_pago;
     public $grupo;
     public $hasta;
@@ -42,6 +43,7 @@ class ventas_presupuestos extends fbase_controller
     public $order;
     public $resultados;
     public $serie;
+    public $status;
     public $total_resultados;
     public $total_resultados_txt;
 
@@ -60,6 +62,8 @@ class ventas_presupuestos extends fbase_controller
         $this->forma_pago = new forma_pago();
         $this->grupo = new grupo_clientes();
         $this->serie = new serie();
+        $this->estados = new estado_documento();
+        $this->estados = $this->estados->get_by_document('ventas_presupuesto');
 
         $this->mostrar = 'todo';
         if (isset($_GET['mostrar'])) {
@@ -102,6 +106,7 @@ class ventas_presupuestos extends fbase_controller
             $this->share_extension();
             $this->cliente = FALSE;
             $this->codagente = '';
+            $this->status = '';
             $this->codalmacen = '';
             $this->codgrupo = '';
             $this->codpago = '';
@@ -133,6 +138,10 @@ class ventas_presupuestos extends fbase_controller
 
                 if (isset($_REQUEST['codagente'])) {
                     $this->codagente = $_REQUEST['codagente'];
+                }
+                
+                if (isset($_REQUEST['status'])) {
+                    $this->status = $_REQUEST['status'];
                 }
 
                 if (isset($_REQUEST['codalmacen'])) {
@@ -226,6 +235,7 @@ class ventas_presupuestos extends fbase_controller
             $url = $this->url() . "&mostrar=" . $this->mostrar
                 . "&query=" . $this->query
                 . "&codagente=" . $this->codagente
+                . "&status=" . $this->status
                 . "&codalmacen=" . $this->codalmacen
                 . "&codcliente=" . $codcliente
                 . "&codgrupo=" . $this->codgrupo
@@ -363,6 +373,11 @@ class ventas_presupuestos extends fbase_controller
 
         if ($this->codagente != '') {
             $sql .= $where . "codagente = " . $this->agente->var2str($this->codagente);
+            $where = ' AND ';
+        }
+        
+        if ($this->status != '') {
+            $sql .= $where . "status = " . $this->agente->var2str($this->status);
             $where = ' AND ';
         }
 

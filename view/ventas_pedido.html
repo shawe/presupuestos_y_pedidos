@@ -121,47 +121,58 @@
                </a>
                {else}
                <div class="btn-group">
-                  {if="$fsc->pedido->status==0"}
-                  <button type="button" class="btn btn-sm btn-warning dropdown-toggle" data-toggle="dropdown">
-                     <span class="glyphicon glyphicon-time"></span>
-                     <span class="hidden-xs">&nbsp; Pendiente</span>
-                     <span class="caret"></span>
-                  </button>
-                  {elseif="$fsc->pedido->status==1"}
-                  <button type="button" class="btn btn-sm btn-info dropdown-toggle" data-toggle="dropdown">
-                     <span class="glyphicon glyphicon-ok"></span>
-                     <span class="hidden-xs">&nbsp; Aprobado</span>
-                     <span class="caret"></span>
-                  </button>
-                  {elseif="$fsc->pedido->status==2"}
-                  <button type="button" class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown">
-                     <span class="glyphicon glyphicon-remove"></span>
-                     <span class="hidden-xs">&nbsp; Rechazado</span>
-                     <span class="caret"></span>
-                  </button>
-                  {/if}
+                  {loop="$fsc->estados"}
+                     {if="$value->status==$fsc->pedido->status"}
+                     <button type="button" class="btn btn-sm btn-warning dropdown-toggle" data-toggle="dropdown">
+                        {if="$value->status==0"}
+                            <span class="glyphicon glyphicon-time"></span>
+                        {elseif="$value->status==1"}
+                            <span class="glyphicon glyphicon-ok"></span>
+                        {elseif="$value->status==2"}
+                            <span class="glyphicon glyphicon-remove"></span>
+                        {else}
+                            <span class="fa fa-tag"></span>
+                        {/if}
+                        {if="$value->status==$fsc->pedido->status"}
+                        <span class="hidden-xs">&nbsp; {$value->nombre}</span>
+                        <span class="caret"></span>
+                        {/if}
+                     </button>
+                     {/if}
+                  {/loop}
                   <ul class="dropdown-menu" role="menu">
-                     {if="$fsc->pedido->status!=0"}
-                     <li><a href="{$fsc->url()}&status=0"><span class="glyphicon glyphicon-time"></span>&nbsp; Pendiente</a></li>
-                     {/if}
-                     {if="$fsc->pedido->status!=1"}
-                     <li><a href="{$fsc->url()}&status=1"><span class="glyphicon glyphicon-ok"></span>&nbsp; Aprobado</a></li>
-                     <li>
-                        <a href="#" data-toggle="modal" data-target="#modal_aprobar">
-                           <span class="glyphicon glyphicon-file"></span>&nbsp; Aprobar y facturar
-                        </a>
-                     </li>
-                     {/if}
-                     {if="$fsc->pedido->status==0 && $fsc->user->have_access_to('ventas_agrupar_pedidos')"}
-                     <li>
-                        <a href="index.php?page=ventas_agrupar_pedidos&codcliente={$fsc->pedido->codcliente}&codserie={$fsc->pedido->codserie}&desde={$fsc->pedido->fecha}&coddivisa={$fsc->pedido->coddivisa}">
-                           <span class="glyphicon glyphicon-duplicate"></span>&nbsp; Agrupar...
-                        </a>
-                     </li>
-                     {/if}
-                     {if="$fsc->pedido->status!=2"}
-                     <li><a href="{$fsc->url()}&status=2"><span class="glyphicon glyphicon-remove"></span>&nbsp; Rechazado</a></li>
-                     {/if}
+                     {loop="$fsc->estados"}
+                        {if="$value->status!=$fsc->pedido->status"}
+                        <li>
+                            <a href="{$fsc->url()}&status={$value->status}">
+                                {if="$value->status==0"}
+                                    <span class="glyphicon glyphicon-time"></span>
+                                {elseif="$value->status==1"}
+                                    <span class="glyphicon glyphicon-ok"></span>
+                                {elseif="$value->status==2"}
+                                    <span class="glyphicon glyphicon-remove"></span>
+                                {else}
+                                    <span class="fa fa-tag"></span>
+                                {/if}
+                                &nbsp; {$value->nombre}</a>
+                        </li>
+                        {/if}
+                        {if="$value->status==1"}
+                        <li>
+                           <a href="#" data-toggle="modal" data-target="#modal_aprobar">
+                              <span class="glyphicon glyphicon-file"></span>&nbsp; Aprobar y facturar
+                           </a>
+                        </li>
+                        {/if}
+                        {if="$value->status==0 AND $fsc->pedido->status==0 AND $fsc->user->have_access_to('ventas_agrupar_pedidos')"}
+                        <li>
+                           <a href="index.php?page=ventas_agrupar_pedidos&codcliente={$fsc->pedido->codcliente}&codserie={$fsc->pedido->codserie}&desde={$fsc->pedido->fecha}&coddivisa={$fsc->pedido->coddivisa}">
+                              <span class="glyphicon glyphicon-duplicate"></span>&nbsp; Agrupar...
+                           </a>
+                        </li>
+                        {/if}
+                     {/loop}
+                     
                   </ul>
                </div>
                {/if}
@@ -307,6 +318,16 @@
                <input class="form-control" type="text" name="hora" value="{$fsc->pedido->hora}" autocomplete="off"/>
                {else}
                <div class="form-control">{$fsc->pedido->hora}</div>
+               {/if}
+            </div>
+         </div>
+         <div class="col-md-2 col-sm-2">
+            <div class="form-group">
+               Entrega:
+               {if="$fsc->pedido->editable"}
+               <input class="form-control datepicker" type="text" name="fechaentrega" value="{$fsc->pedido->fechaentrega}" autocomplete="off"/>
+               {else}
+               <div class="form-control">{$fsc->pedido->fechaentrega}</div>
                {/if}
             </div>
          </div>

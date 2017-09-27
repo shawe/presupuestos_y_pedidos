@@ -30,6 +30,7 @@ class ventas_pedido extends fbase_controller
     public $cliente_s;
     public $divisa;
     public $ejercicio;
+    public $estados;
     public $fabricante;
     public $familia;
     public $forma_pago;
@@ -68,6 +69,8 @@ class ventas_pedido extends fbase_controller
         $this->pais = new pais();
         $this->serie = new serie();
         $this->agencia = new agencia_transporte();
+        $this->estados = new estado_documento();
+        $this->estados = $this->estados->get_by_document('ventas_pedido');
 
         /**
          * Comprobamos si el usuario tiene acceso a nueva_venta,
@@ -181,6 +184,7 @@ class ventas_pedido extends fbase_controller
     private function modificar()
     {
         $this->pedido->observaciones = $_POST['observaciones'];
+        $this->pedido->numero2 = $_POST['numero2'];
 
         /// ¿El pedido es editable o ya ha sido aprobado?
         if ($this->pedido->editable) {
@@ -193,6 +197,11 @@ class ventas_pedido extends fbase_controller
                 if ($_POST['fechasalida'] != '') {
                     $this->pedido->fechasalida = $_POST['fechasalida'];
                 }
+                
+                $this->pedido->fechaentrega = NULL;
+                if ($_POST['fechaentrega'] != '') {
+                    $this->pedido->fechaentrega = $_POST['fechaentrega'];
+                }
 
                 if ($this->pedido->codejercicio != $eje0->codejercicio) {
                     $this->pedido->codejercicio = $eje0->codejercicio;
@@ -202,6 +211,10 @@ class ventas_pedido extends fbase_controller
                 $this->new_error_msg('Ningún ejercicio encontrado.');
             }
 
+            if (isset($_POST['status'])) {
+                $this->pedido->status = intval($_POST['status']);
+            }
+            
             /// ¿cambiamos el cliente?
             if ($_POST['cliente'] != $this->pedido->codcliente) {
                 $cliente = $this->cliente->get($_POST['cliente']);
@@ -334,6 +347,7 @@ class ventas_pedido extends fbase_controller
                             /// modificamos la línea
                             if ($value->idlinea == intval($_POST['idlinea_' . $num])) {
                                 $encontrada = TRUE;
+                                $lineas[$k]->orden = $num;
                                 $lineas[$k]->cantidad = floatval($_POST['cantidad_' . $num]);
                                 $lineas[$k]->pvpunitario = floatval($_POST['pvp_' . $num]);
                                 $lineas[$k]->dtopor = floatval(fs_filter_input_post('dto_' . $num, 0));
@@ -389,6 +403,7 @@ class ventas_pedido extends fbase_controller
                                 $linea->recargo = floatval(fs_filter_input_post('recargo_' . $num, 0));
                             }
 
+                            $linea->orden = $num;
                             $linea->irpf = floatval(fs_filter_input_post('irpf_' . $num, 0));
                             $linea->cantidad = floatval($_POST['cantidad_' . $num]);
                             $linea->pvpunitario = floatval($_POST['pvp_' . $num]);
@@ -469,6 +484,7 @@ class ventas_pedido extends fbase_controller
         $albaran->codpostal = $this->pedido->codpostal;
         $albaran->codserie = $this->pedido->codserie;
         $albaran->direccion = $this->pedido->direccion;
+        $albaran->fechaentrega = $this->pedido->fechaentrega;
         $albaran->netosindto = $this->pedido->netosindto;
         $albaran->dtopor1 = $this->pedido->dtopor1;
         $albaran->dtopor2 = $this->pedido->dtopor2;
